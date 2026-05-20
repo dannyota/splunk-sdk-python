@@ -22,7 +22,7 @@ ci-install:
 
 UV_RUN_CMD := uv run
 .PHONY: lint
-lint: lint-python # TODO: Add mbake
+lint: lint-python lint-makefile
 
 .PHONY: lint-python
 lint-python:
@@ -30,14 +30,28 @@ lint-python:
 	$(UV_RUN_CMD) ruff format
 	$(UV_RUN_CMD) basedpyright
 
+.PHONY: lint-makefile
+lint-makefile:
+	$(UV_RUN_CMD) mbake format --config ./.bake.toml Makefile docs/Makefile
+
 .PHONY: ci-lint
-ci-lint: ci-lint-python # TODO: Add mbake
+ci-lint: ci-lint-python ci-lint-makefile
 
 .PHONY: ci-lint-python
 ci-lint-python:
 	$(UV_RUN_CMD) ruff check --fix-only --exit-non-zero-on-fix
 	$(UV_RUN_CMD) ruff format --check
 	$(UV_RUN_CMD) basedpyright
+
+.PHONY: ci-lint-makefile
+ci-lint-makefile:
+	$(UV_RUN_CMD) mbake format --config ./.bake.toml --check Makefile docs/Makefile
+	$(UV_RUN_CMD) mbake validate --config ./.bake.toml Makefile docs/Makefile
+
+.PHONY: ci-lint-makefile
+ci-lint-makefile:
+	$(UV_RUN_CMD) mbake format --config ./.bake.toml --check Makefile docs/Makefile
+	$(UV_RUN_CMD) mbake validate --config ./.bake.toml Makefile docs/Makefile
 
 .PHONY: clean
 clean:
